@@ -1,0 +1,94 @@
+import cv2
+import torch
+import pyttsx3
+import torchvision.transforms as transforms
+import sys
+from efficientnet_pytorch import EfficientNet # or use the appropriate model import
+# Add the path where index.py is located
+sys.path.append('C:/Users/shiva/OneDrive/Documents/py files')
+# Import scene mapping from index.py
+from index import scene_mapping
+# Load YOLOv5 model
+yolo_model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+# Initialize video capture object with webcam index (usually 0)
+cap = cv2.VideoCapture(0)
+# Initialize pyttsx3 engine
+engine = pyttsx3.init()
+# Known object size (replace with the actual size of the object you're detecting in meters)
+known_object_size = 1.0 # Adjust this value as needed
+# Load EfficientNet model for scene recognition
+model = EfficientNet.from_pretrained('efficientnet-b0')
+model.eval()
+# Define transformations for input images to the model
+transform = transforms.Compose([
+ transforms.ToPILImage(),
+ transforms.Resize((224, 224)),
+ transforms.ToTensor(),
+ transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
+# Define default scene label
+default_scene_label = "room"
+while True:
+# Capture frame-by-frame
+ ret, frame = cap.read()
+ # Convert frame to RGB format (OpenCV uses BGR)
+ frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+ # Perform object detection using YOLOv5
+ results_yolo = yolo_model(frame_rgb)
+ # Extract detected objects and their labels from YOLOv5 results
+ detections_yolo = results_yolo.pandas().xyxy[0]
+ # Loop through detected objects from YOLOv5
+ for _, row in detections_yolo.iterrows():
+ xmin, ymin, xmax, ymax, _, class_id, name = row.to_list()
+ # Convert bounding box coordinates back to BGR frame format
+ xmin, ymin, xmax, ymax = int(xmin), int(ymin), int(xmax), int(ymax)
+ # Draw rectangle around the detected object from YOLOv5
+ cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (255, 0, 0), 2)
+ # Put object label on the frame from YOLOv5
+ cv2.putText(frame, name, (xmin, ymin - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.9,
+(255, 0, 0), 2)
+ # Distance estimation (without camera calibration)
+ if known_object_size is not None:
+ bounding_box_area = (xmax - xmin) * (ymax - ymin)
+ if bounding_box_area > 0:
+ conversion_factor = known_object_size / bounding_box_area
+ height_in_pixels = ymax - ymin
+ if conversion_factor > 0:
+ estimated_distance = height_in_pixels / conversion_factor
+ cv2.putText(frame, f"Est. Distance: {estimated_distance:.2f} m", (xmin,
+ymax + 15),
+ cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 0, 0), 2)
+ # Text-to-speech with pyttsx3 for distance
+ engine.say(f"The {name} is approximately {estimated_distance:.2f} meters
+away.")
+")
+27
+ engine.runAndWait()
+ # Perform scene recognition using the model
+ if frame is not None:
+ frame_resized = cv2.resize(frame, (224, 224)) # Resize frame to match model input
+size
+ frame_resized = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB) # Convert
+to RGB
+ # Convert frame to PyTorch tensor and normalize
+ input_tensor = transform(frame_resized).unsqueeze(0)
+ # Perform inference
+ with torch.no_grad():
+ output = model(input_tensor)
+ # Get predicted label index
+ predicted_index = torch.argmax(output, 1).item()
+ print(f"Predicted index: {predicted_index}")
+ # Convert predicted index to scene label using the mapping
+ scene_label = scene_mapping.get(str(predicted_index), default_scene_label)
+ print(f"Scene label: {scene_label}")
+ # Display scene label
+ cv2.putText(frame, f"Scene: {scene_label}", (10, 30),
+cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+ # Display the resulting frame with detections from YOLOv5
+ cv2.imshow('frame', frame)
+ # Exit loop on 'q' key press
+ if cv2.waitKey(1) == ord('q'):
+ break
+# Release capture and close all windows
+cap.release()
+cv2.destroyAllWindows()

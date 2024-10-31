@@ -1,0 +1,151 @@
+SYSTEM SPECIFICATION
+
+HARDWARE REQUIREMENTS :
+
+1. CPU: Multi-core processor (Intel i7 or AMD Ryzen 7 or better).
+2. GPU: Dedicated NVIDIA GPU with CUDA support (e.g., NVIDIA GeForce GTX
+1080 Ti or better).
+3. RAM: At least 16GB.
+4. Storage: At least 500GB SSD.
+5. Camera: High-definition webcam (1080p resolution or better).
+6. Microphone/Speakers: Required for pyttsx3 text-to-speech functionality.
+
+SOFTWARE REQUIREMENTS:
+
+1. Operating System:
+• Windows 10 or 11 (64-bit).
+• Ubuntu 18.04 or later (64-bit) for Linux users.
+2. Programming Environment:
+• Python 3.8 or later.
+3. Libraries and Dependencies:
+• PyTorch: Latest stable version with CUDA support.
+• YOLOv5: Installable via torch.hub or by cloning the YOLOv5 repository.
+• EfficientNet: EfficientNet PyTorch library.
+• OpenCV: OpenCV Python package.
+• Pyttsx3: Text-to-speech library.
+• Pandas: Required for processing YOLOv5 results.
+• Pillow: Image processing library
+
+DETAILED SOFTWARE SPECIFICATIONS:
+
+Here are the software requirements and optional software with their detailed
+explanations.
+
+OPERATING SYSTEM:
+
+1. Windows 10 or 11 (64-bit): These versions of Windows offer robust support for
+hardware acceleration and driver compatibility, essential for leveraging GPU capabilities
+with CUDA.
+
+2. Ubuntu 18.04 or later (64-bit): Linux distributions like Ubuntu provide a stable
+environment for machine learning development with excellent support for GPU
+acceleration and a wide array of development tools.
+
+PROGRAMMING ENVIRONMENT:
+
+1. Python 3.8 or later: Python is the primary programming language used in machine
+learning and computer vision. Ensure Python is installed correctly and the environment is
+set up for development.
+
+LIBRARIES AND DEPENDENCIES:
+
+1. PyTorch:
+ - PyTorch is an open-source machine learning library based on the Torch library, used
+for applications such as computer vision and natural language processing.
+ - Installation: Install the latest stable version of PyTorch with CUDA support to
+leverage GPU acceleration.
+
+2. YOLOv5:
+ - YOLO (You Only Look Once) is a state-of-the-art, real-time object detection system.
+ - Installation: YOLOv5 can be installed via torch.hub or by cloning the YOLOv5
+GitHub repository and installing the required dependencies.
+ - Usage: YOLOv5 is used in the code for real-time object detection, which requires a
+significant amount of computational power, ideally supported by a GPU.
+
+3. EfficientNet:
+
+ - EfficientNet is a family of convolutional neural networks that are efficient and provide
+high performance on image classification tasks.
+ - Installation: Install the EfficientNet PyTorch library to use pre-trained EfficientNet
+models.
+ - Usage: EfficientNet is used for scene recognition in the provided code.
+
+4. OpenCV:
+ - OpenCV (Open Source Computer Vision Library) is an open-source computer vision
+and machine learning software library.
+ - Installation: Install the OpenCV Python package to handle image and video processing.
+ - Usage: OpenCV is used for capturing video from the webcam, processing frames, and
+displaying results with object detection and scene recognition annotations.
+
+5. Pyttsx3:
+ - Pyttsx3 is a text-to-speech conversion library in Python.
+ - Installation: Install the pyttsx3 library to enable text-to-speech functionality.
+ - Usage: Pyttsx3 is used in the code to provide audio feedback on the estimated distance
+to detected objects.
+6. Pandas:
+ - Pandas is a powerful data manipulation and analysis library for Python.
+ - Installation: Install the pandas library to handle data in a tabular format.
+ - Usage: Pandas is used to process the results from YOLOv5 object detection, which are
+returned as DataFrames.
+
+7. Pillow:
+ - Pillow is a Python Imaging Library (PIL) that adds image processing capabilities to
+your Python interpreter.
+ - Installation: Install the Pillow library to handle image transformations.
+ - Usage: Pillow is used for converting OpenCV images to PIL format for EfficientNet
+input.
+
+IMPLEMENTATION STEPS:
+
+To execute the real-time object detection, distance estimation, and scene recognition
+script, follow these implementation steps:
+
+1. Environment Setup:
+ - Begin by ensuring Python is installed on your system. Python serves as the foundation
+for running the script and its dependencies.
+ - Create a virtual environment to manage project dependencies separately, preventing
+conflicts between different project requirements.
+
+2. Library Installation:
+ - Install the necessary libraries using pip, including PyTorch, Torchvision, OpenCV,
+pyttsx3, Pandas, Pillow, and EfficientNet-PyTorch. These libraries are essential for
+various tasks such as deep learning, image processing, data manipulation, and text-tospeech capabilities.
+
+3. YOLOv5 Setup:
+ - Clone the official YOLOv5 repository from GitHub, which contains the YOLOv5
+model and its associated files.
+ - Follow the instructions provided in the repository to install the required dependencies
+specific to YOLOv5.
+
+4. Scene Mapping Preparation:
+ - Ensure the index.py file contains a dictionary named scene_mapping. This dictionary
+maps the indices from the EfficientNet model outputs to human-readable scene labels.
+ - Set up the correct path to index.py in the script to allow for seamless importing.
+
+5. Script Execution:
+ - Run the script in your configured Python environment. This script captures video from
+the webcam, performs object detection using YOLOv5, estimates distances, and
+recognizes scenes using EfficientNet.
+ - The script continuously processes the video stream, detecting objects, estimating
+distances, and recognizing scenes in real-time.
+ - Results are displayed on the screen, and distance information is provided via text-tospeech feedback.
+ - Terminate the script by pressing the 'q' key, which gracefully closes all OpenCV
+windows and releases the video capture resources.
+
+EXPECTED OUTPUT:
+
+When the script runs and the webcam captures a scene with a person standing in a
+living room, the system will first detect the person using the YOLOv5 object detection
+model. A blue bounding box will be drawn around the detected person with the label
+"person" displayed above it. Concurrently, the script will estimate the distance to the
+person based on the known object size and bounding box dimensions, displaying this
+estimated distance below the bounding box in the format "Est. Distance: 2.50 m". Using
+the pyttsx3 text-to-speech engine, the system will announce the estimated distance, for
+example, "The person is approximately 2.50 meters away." Additionally, the EfficientNet
+model will process the frame to recognize the scene, displaying the predicted scene label
+"room" at the top-left corner of the frame. This information will continuously update in
+real-time as the script processes each frame, providing a dynamic and interactive
+experience. Debug information, including the predicted index and scene label, will be
+printed to the console. The output window will reflect these real-time updates until the
+user presses the 'q' key, which will terminate the script, release the webcam, and close all
+OpenCV windows.
